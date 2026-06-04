@@ -1,0 +1,141 @@
+.studio-layout {
+    display: grid;
+    grid-template-columns: 200px 1fr 280px;
+    gap: 20px;
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+}
+
+.palette, .properties {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+}
+
+#canvas-wrapper {
+    background-color: #f8fafc; /* Light grid background */
+    background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+    background-size: 20px 20px;
+    overflow: auto;
+    position: relative;
+    padding: 0;
+}
+
+#flow-canvas {
+    cursor: crosshair;
+}
+
+.shape-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.shape-item {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: grab;
+    transition: transform 0.2s;
+}
+
+.shape-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.svg-thumb {
+    width: 40px;
+    height: 25px;
+}
+
+.svg-thumb svg {
+    width: 100%;
+    height: 100%;
+}
+
+.action-btn {
+    background: var(--bg-primary);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-btn:hover {
+    background: var(--accent-primary);
+    color: var(--bg-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.2);
+}
+
+.action-btn.danger:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.ai-tool-btn {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    border: none;
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Node styles */
+.flow-node {
+    cursor: move;
+}
+
+.flow-node rect, .flow-node path {
+    stroke: rgba(0,0,0,0.1);
+    stroke-width: 1;
+}
+
+.flow-node text {
+    fill: white;
+    font-size: 12px;
+    pointer-events: none;
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+.connection-line {
+    fill: none;
+    stroke: var(--text-dim);
+    stroke-width: 2;
+    marker-end: url(#arrowhead);
+}
+
+.premade-list button {
+    width: 100%;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+}
+
+.premade-list button:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    border-color: var(--accent-primary);
+}

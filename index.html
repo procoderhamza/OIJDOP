@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent OS | Advanced AI Studio</title>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/flowchart.css">
+    <link rel="stylesheet" href="css/calculator.css">
+    <link rel="stylesheet" href="css/notes.css">
+    <link rel="stylesheet" href="css/study.css">
+    <!-- External Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+</head>
+<body>
+    <aside>
+        <div class="brand">
+            <i class="fas fa-microchip"></i>
+            <span>Agent OS</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#agent" class="active" onclick="switchView('agent')"><i class="fas fa-terminal"></i> Command Center</a></li>
+                <li><a href="#flowchart" onclick="switchView('flowchart')"><i class="fas fa-sitemap"></i> Flowchart Studio</a></li>
+                <li><a href="#calculator" onclick="switchView('calculator')"><i class="fas fa-calculator"></i> Smart Calc</a></li>
+                <li><a href="#notes" onclick="switchView('notes')"><i class="fas fa-brain"></i> Memory Bank</a></li>
+                <li><a href="#study" onclick="switchView('study')"><i class="fas fa-user-graduate"></i> AI Study Tutor</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div id="agent-status"><i class="fas fa-circle" style="color: var(--success); font-size: 0.6rem;"></i> AI Agent Online</div>
+            <p>v3.0.0-PRO</p>
+        </div>
+    </aside>
+
+    <main>
+        <!-- Agent Section -->
+        <section id="agent" class="view-section active">
+            <div class="container">
+                <header>
+                    <h1>Command Center</h1>
+                    <p>Orchestrate your workflow with AI.</p>
+                </header>
+                <div class="agent-dashboard">
+                    <div class="card">
+                        <h3>Hello, I'm your AI Desktop Agent.</h3>
+                        <p style="margin-top: 10px; color: var(--text-dim);">I can help you build logic flows, perform complex calculations, and manage your technical notes. How can I assist you today?</p>
+                        <div id="voice-monitor" style="margin-top: 30px; display: flex; align-items: center; gap: 15px;">
+                            <button id="master-voice-btn" class="voice-btn-large">
+                                <i class="fas fa-microphone"></i> Start Voice Command
+                            </button>
+                            <div id="voice-transcript" style="color: var(--text-dim); font-style: italic;">"Try saying: Go to Flowchart"</div>
+                        </div>
+                    </div>
+
+                    <div class="status-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
+                        <div class="card stat-card">
+                            <i class="fas fa-microchip"></i>
+                            <div>
+                                <span>Core Load</span>
+                                <h4>Minimal</h4>
+                            </div>
+                        </div>
+                        <div class="card stat-card">
+                            <i class="fas fa-database"></i>
+                            <div>
+                                <span>Memory Bank</span>
+                                <h4>Sync'd</h4>
+                            </div>
+                        </div>
+                        <div class="card stat-card">
+                            <i class="fas fa-network-wired"></i>
+                            <div>
+                                <span>Uptime</span>
+                                <h4>99.9%</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flowchart Studio -->
+        <section id="flowchart" class="view-section">
+            <div class="container" style="max-width: 100%;">
+                <header style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h1>Flowchart Studio</h1>
+                        <p>Visual logic builder with AI analysis.</p>
+                    </div>
+                    <div class="flow-actions">
+                        <button class="action-btn" onclick="flowchart.check()"><i class="fas fa-check-circle"></i> Check</button>
+                        <button class="action-btn" onclick="flowchart.analyze()"><i class="fas fa-brain"></i> AI Analyze</button>
+                        <button class="action-btn" onclick="flowchart.exportSVG()"><i class="fas fa-download"></i> Export</button>
+                        <button class="action-btn danger" onclick="flowchart.clear()"><i class="fas fa-trash"></i> Clear</button>
+                    </div>
+                </header>
+
+                <div class="studio-layout">
+                    <!-- Palette -->
+                    <div class="palette card">
+                        <h4>Shapes</h4>
+                        <div class="shape-grid">
+                            <div class="shape-item" draggable="true" data-type="start">
+                                <div class="svg-thumb"><svg><rect rx="15" width="40" height="25" fill="var(--accent-primary)"/></svg></div>
+                                <span>Start</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="process">
+                                <div class="svg-thumb"><svg><rect width="40" height="25" fill="var(--accent-secondary)"/></svg></div>
+                                <span>Process</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="decision">
+                                <div class="svg-thumb"><svg><path d="M20 0 L40 12.5 L20 25 L0 12.5 Z" fill="#f59e0b"/></svg></div>
+                                <span>Decision</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="io">
+                                <div class="svg-thumb"><svg><path d="M5 0 L40 0 L35 25 L0 25 Z" fill="#8b5cf6"/></svg></div>
+                                <span>I/O</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="end">
+                                <div class="svg-thumb"><svg><rect rx="15" width="40" height="25" fill="#ef4444"/></svg></div>
+                                <span>End</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="document">
+                                <div class="svg-thumb"><svg><path d="M0 0 L40 0 L40 20 Q30 25 20 20 Q10 15 0 20 Z" fill="#10b981"/></svg></div>
+                                <span>Document</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="data">
+                                <div class="svg-thumb"><svg><rect width="40" height="25" fill="#6366f1"/></svg></div>
+                                <span>Data</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="preparation">
+                                <div class="svg-thumb"><svg><path d="M5 0 L35 0 L40 12.5 L35 25 L5 25 L0 12.5 Z" fill="#ec4899"/></svg></div>
+                                <span>Prep</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="display">
+                                <div class="svg-thumb"><svg><path d="M0 12.5 L5 0 L35 0 Q40 12.5 35 25 L5 25 Z" fill="#f97316"/></svg></div>
+                                <span>Display</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="manual">
+                                <div class="svg-thumb"><svg><path d="M0 5 L40 0 L40 25 L0 25 Z" fill="#06b6d4"/></svg></div>
+                                <span>Manual</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="storage">
+                                <div class="svg-thumb"><svg><path d="M0 0 L35 0 Q40 12.5 35 25 L0 25 Q5 12.5 0 0 Z" fill="#475569"/></svg></div>
+                                <span>Storage</span>
+                            </div>
+                            <div class="shape-item" draggable="true" data-type="database">
+                                <div class="svg-thumb"><svg><path d="M0 5 Q20 0 40 5 L40 20 Q20 25 0 20 Z" fill="#4338ca"/></svg></div>
+                                <span>DB</span>
+                            </div>
+                        </div>
+                        <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 15px 0;">
+                        <h4>AI Tools</h4>
+                        <button class="ai-tool-btn" onclick="flowchart.tutor()"><i class="fas fa-graduation-cap"></i> Flowchart Tutor</button>
+                    </div>
+
+                    <!-- Canvas -->
+                    <div id="canvas-wrapper" class="card">
+                        <svg id="flow-canvas" width="2000" height="2000">
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--text-dim)" />
+                                </marker>
+                            </defs>
+                            <g id="connections"></g>
+                            <g id="nodes"></g>
+                        </svg>
+                    </div>
+
+                    <!-- Properties -->
+                    <div class="properties card">
+                        <h4>Properties</h4>
+                        <div id="props-panel">
+                            <p style="color: var(--text-dim); font-size: 0.8rem;">Select an element to edit</p>
+                        </div>
+                        <div class="premade-section">
+                            <h4>Premade Templates</h4>
+                            <div class="premade-list">
+                                <button onclick="flowchart.loadTemplate('login')">User Login</button>
+                                <button onclick="flowchart.loadTemplate('checkout')">Checkout</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calculator -->
+        <section id="calculator" class="view-section">
+            <div class="container">
+                <header>
+                    <h1>Smart Calculator</h1>
+                    <p>Voice-enabled precision engineering.</p>
+                </header>
+                <!-- Calc content will be injected or managed by js -->
+                <div class="calc-container card">
+                    <div id="calc-display" class="display">0</div>
+                    <div class="calc-grid">
+                        <!-- Buttons added via JS for cleaner refactoring -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notes -->
+        <section id="notes" class="view-section">
+            <div class="container">
+                <header>
+                    <h1>Memory Bank</h1>
+                    <p>Your technical briefing repository.</p>
+                </header>
+                <div class="notes-layout">
+                    <div class="notes-sidebar card">
+                        <button class="new-note-btn"><i class="fas fa-plus"></i> New Note</button>
+                        <div id="notes-list"></div>
+                    </div>
+                    <div class="note-editor card">
+                        <input type="text" id="note-title" placeholder="Note Title...">
+                        <textarea id="note-content" placeholder="Start typing..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Study Tutor -->
+        <section id="study" class="view-section">
+            <div class="container">
+                <header>
+                    <h1>AI Study Tutor</h1>
+                    <p>Advanced learning companion with visual aids.</p>
+                </header>
+                <div class="study-layout">
+                    <div class="study-controls card">
+                        <h3>Study Material</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 15px;">Upload a PDF or paste text to begin.</p>
+                        <input type="file" id="pdf-upload" accept=".pdf" style="display: none;">
+                        <button class="action-btn" onclick="document.getElementById('pdf-upload').click()" style="width: 100%; margin-bottom: 10px;">
+                            <i class="fas fa-file-pdf"></i> Upload PDF
+                        </button>
+                        <textarea id="study-text" placeholder="Or paste your study notes here..."></textarea>
+                        <button id="analyze-study-btn" class="voice-btn-large" style="width: 100%; margin-top: 15px;">
+                            <i class="fas fa-wand-magic-sparkles"></i> Generate Visual Aids
+                        </button>
+                    </div>
+                    <div class="study-output">
+                        <div class="card" id="explanation-box" style="margin-bottom: 20px;">
+                            <h4>AI Summary & Explanation</h4>
+                            <div id="explanation-content" style="color: var(--text-dim); margin-top: 10px; line-height: 1.6;">
+                                Upload material to see AI-generated summaries and simplified concepts.
+                            </div>
+                        </div>
+                        <div class="visual-grid" id="visual-aids">
+                            <!-- AI Generated Visuals -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JS Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/flowchart/builder.js"></script>
+    <script src="js/flowchart/templates.js"></script>
+    <script src="js/flowchart/ai_analyzer.js"></script>
+    <script src="js/calculator/calc.js"></script>
+    <script src="js/notes/notes.js"></script>
+    <script src="js/ai/voice.js"></script>
+    <script src="js/ai/study_tutor.js"></script>
+
+    <!-- Modal for AI Animations -->
+    <div id="ai-modal" class="ai-modal">
+        <div class="modal-content">
+            <i class="fas fa-times close-modal" onclick="StudyTutor.closeModal()"></i>
+            <h3 id="modal-title">AI Logic Animation</h3>
+            <div class="anim-container">
+                <div class="anim-box"></div>
+                <div class="anim-box" style="animation-delay: 0.2s"></div>
+                <div class="anim-box" style="animation-delay: 0.4s"></div>
+            </div>
+            <p id="modal-desc" style="color: var(--text-dim);"></p>
+        </div>
+    </div>
+</body>
+</html>
