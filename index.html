@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Desktop Agent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --accent-primary: #38bdf8;
+            --accent-secondary: #0ea5e9;
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        aside {
+            width: 280px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 40px;
+        }
+
+        .brand i {
+            font-size: 1.8rem;
+        }
+
+        nav {
+            flex: 1;
+        }
+
+        nav ul {
+            list-style: none;
+        }
+
+        nav li {
+            margin-bottom: 8px;
+        }
+
+        nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-dim);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            background-color: var(--glass);
+            color: var(--text-main);
+        }
+
+        nav a.active {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            position: relative;
+            overflow-y: auto;
+            background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.05), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.05), transparent 40%);
+        }
+
+        .container {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        .view-section {
+            display: none;
+            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards & Components */
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Calculator Specific */
+        .calc-wrapper {
+            max-width: 450px;
+        }
+
+        #display {
+            width: 100%;
+            height: 80px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: white;
+            font-size: 2rem;
+            text-align: right;
+            padding: 20px;
+            margin-bottom: 24px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .btn {
+            aspect-ratio: 1;
+            border-radius: 16px;
+            border: none;
+            background: var(--glass);
+            color: var(--text-main);
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .btn.operator { color: var(--accent-primary); }
+        .btn.scientific { color: var(--accent-secondary); font-size: 1rem; }
+        .btn.equals { background: var(--accent-primary); color: var(--bg-primary); grid-column: span 2; aspect-ratio: auto; }
+        .btn.clear { color: var(--danger); grid-column: span 2; aspect-ratio: auto; }
+
+        .voice-control {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        #voice-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: opacity 0.3s;
+        }
+
+        #voice-btn:hover {
+            opacity: 0.9;
+        }
+
+        #voice-btn.listening {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+
+        #status {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        /* Notes & Tasks Specific */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        #notes-area {
+            width: 100%;
+            height: 400px;
+            background: var(--bg-primary);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            padding: 20px;
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            line-height: 1.6;
+        }
+
+        #notes-area:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .task-item.completed span {
+            text-decoration: line-through;
+            color: var(--text-dim);
+        }
+
+        .task-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .task-item span {
+            flex: 1;
+        }
+
+        .delete-task {
+            color: var(--danger);
+            cursor: pointer;
+            opacity: 0.6;
+        }
+
+        .delete-task:hover {
+            opacity: 1;
+        }
+
+        .task-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #new-task {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        #add-task-btn {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Flowchart Studio Specific */
+        .flowchart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            height: calc(100vh - 250px);
+        }
+
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        #mermaid-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--accent-primary);
+            padding: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            resize: none;
+            outline: none;
+        }
+
+        #mermaid-input:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .preview-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .symbol-guide {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .symbol-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .symbol-card code {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--accent-primary);
+        }
+
+        /* Glass Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    </style>
+</head>
+<body>
+    <aside>
+        <div class="brand">
+            <i class="fas fa-robot"></i>
+            <span>Agent OS</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#agent" class="active" onclick="switchView('agent')"><i class="fas fa-terminal"></i> Command Center</a></li>
+                <li><a href="#flowchart" onclick="switchView('flowchart')"><i class="fas fa-sitemap"></i> Flowchart Studio</a></li>
+                <li><a href="#calculator" onclick="switchView('calculator')"><i class="fas fa-calculator"></i> Voice Calculator</a></li>
+                <li><a href="#notes" onclick="switchView('notes')"><i class="fas fa-sticky-note"></i> Quick Notes</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p><i class="fas fa-shield-halved"></i> Secure Connection</p>
+            <p>v2.0.4-stable</p>
+        </div>
+    </aside>
+
+    <main>
+        <div id="agent" class="view-section active">
+            <div class="container">
+                <header>
+                    <h1>Command Center</h1>
+                    <p>Welcome, Operator. Systems are nominal.</p>
+                </header>
+                <div class="card">
+                    <h3>System Overview</h3>
+                    <p style="margin-top: 15px; color: var(--text-dim);">The AI Agent is monitoring all sub-modules. Use the sidebar to navigate between specialized tools.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="flowchart" class="view-section">
+            <div class="container">
+                <header>
+                    <h1>Flowchart Studio</h1>
+                    <p>Transform logic into visual architectures.</p>
+                </header>
+
+                <div class="flowchart-grid">
+                    <div class="editor-container">
+                        <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+                            <h3 style="margin-bottom: 12px;">Mermaid Syntax</h3>
+                            <textarea id="mermaid-input" oninput="updateFlowchart()" spellcheck="false">graph TD
+    A[Start] --> B{Is it working?}
+    B -- Yes --> C[Great!]
+    B -- No --> D[Debug]
+    D --> B</textarea>
+                        </div>
+                    </div>
+
+                    <div class="card preview-container" id="mermaid-preview">
+                        <!-- Mermaid diagram will render here -->
+                    </div>
+                </div>
+
+                <div class="symbol-guide">
+                    <div class="symbol-card"><code>[Text]</code>Rectangle (Process)</div>
+                    <div class="symbol-card"><code>{Text}</code>Rhombus (Decision)</div>
+                    <div class="symbol-card"><code>(Text)</code>Rounded (Start/End)</div>
+                    <div class="symbol-card"><code>[[Text]]</code>Subroutine</div>
+                    <div class="symbol-card"><code>[(Text)]</code>Database</div>
+                    <div class="symbol-card"><code>{{Text}}</code>Preparation</div>
+                    <div class="symbol-card"><code>[/Text/]</code>Input/Output</div>
+                    <div class="symbol-card"><code>[\Text\]</code>Manual Operation</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="calculator" class="view-section">
+            <div class="container">
+                <header>
+                    <h1>Voice Calculator</h1>
+                    <p>Mathematical operations via speech or touch.</p>
+                </header>
+                <div class="calc-wrapper">
+                    <div class="card">
+                        <input type="text" id="display" readonly>
+                        <div class="buttons">
+                            <button class="btn scientific" onclick="appendToDisplay('Math.sin(')">sin</button>
+                            <button class="btn scientific" onclick="appendToDisplay('Math.cos(')">cos</button>
+                            <button class="btn scientific" onclick="appendToDisplay('Math.tan(')">tan</button>
+                            <button class="btn scientific" onclick="appendToDisplay('Math.sqrt(')">√</button>
+
+                            <button class="btn clear" onclick="clearDisplay()">Clear</button>
+                            <button class="btn operator" onclick="appendToDisplay('/')">/</button>
+                            <button class="btn operator" onclick="appendToDisplay('*')">*</button>
+
+                            <button class="btn" onclick="appendToDisplay('7')">7</button>
+                            <button class="btn" onclick="appendToDisplay('8')">8</button>
+                            <button class="btn" onclick="appendToDisplay('9')">9</button>
+                            <button class="btn operator" onclick="appendToDisplay('-')">-</button>
+
+                            <button class="btn" onclick="appendToDisplay('4')">4</button>
+                            <button class="btn" onclick="appendToDisplay('5')">5</button>
+                            <button class="btn" onclick="appendToDisplay('6')">6</button>
+                            <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+
+                            <button class="btn" onclick="appendToDisplay('1')">1</button>
+                            <button class="btn" onclick="appendToDisplay('2')">2</button>
+                            <button class="btn" onclick="appendToDisplay('3')">3</button>
+                            <button class="btn operator" onclick="appendToDisplay('.')">.</button>
+
+                            <button class="btn" onclick="appendToDisplay('0')">0</button>
+                            <button class="btn operator" onclick="appendToDisplay(')')">)</button>
+                            <button class="btn equals" onclick="calculate()">=</button>
+                        </div>
+                        <div class="voice-control">
+                            <button id="voice-btn">
+                                <i class="fas fa-microphone"></i>
+                                Start Voice Listening
+                            </button>
+                            <div id="status">Try saying: "Calculate 15 times 4"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="notes" class="view-section">
+            <div class="container">
+                <header>
+                    <h1>Quick Notes & Tasks</h1>
+                    <p>Persistent storage for your technical briefings.</p>
+                </header>
+                <div class="notes-grid">
+                    <div class="card">
+                        <h3 style="margin-bottom: 16px;">Briefing Area</h3>
+                        <textarea id="notes-area" placeholder="Type your notes here... They are automatically saved." oninput="saveNotes()"></textarea>
+                    </div>
+                    <div class="card">
+                        <h3 style="margin-bottom: 16px;">Task Tracker</h3>
+                        <div class="task-input-group">
+                            <input type="text" id="new-task" placeholder="New objective..." onkeypress="if(event.key === 'Enter') addTask()">
+                            <button id="add-task-btn" onclick="addTask()">ADD</button>
+                        </div>
+                        <ul class="task-list" id="task-list">
+                            <!-- Tasks will appear here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'forest',
+            securityLevel: 'loose',
+        });
+
+        async function updateFlowchart() {
+            const input = document.getElementById('mermaid-input').value;
+            const preview = document.getElementById('mermaid-preview');
+
+            try {
+                const { svg } = await mermaid.render('mermaid-svg', input);
+                preview.innerHTML = svg;
+            } catch (error) {
+                // Keep the old diagram if there's an error, or show a subtle hint
+                console.error("Mermaid error:", error);
+            }
+        }
+
+        // Initial render
+        window.addEventListener('load', () => {
+            updateFlowchart();
+        });
+
+        // Notes & Tasks Logic
+        function saveNotes() {
+            localStorage.setItem('agent_notes', document.getElementById('notes-area').value);
+        }
+
+        function loadNotes() {
+            const saved = localStorage.getItem('agent_notes');
+            if (saved) document.getElementById('notes-area').value = saved;
+        }
+
+        function addTask() {
+            const input = document.getElementById('new-task');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const tasks = JSON.parse(localStorage.getItem('agent_tasks') || '[]');
+            tasks.push({ text, completed: false });
+            localStorage.setItem('agent_tasks', JSON.stringify(tasks));
+
+            input.value = '';
+            renderTasks();
+        }
+
+        function toggleTask(index) {
+            const tasks = JSON.parse(localStorage.getItem('agent_tasks'));
+            tasks[index].completed = !tasks[index].completed;
+            localStorage.setItem('agent_tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        function deleteTask(index) {
+            const tasks = JSON.parse(localStorage.getItem('agent_tasks'));
+            tasks.splice(index, 1);
+            localStorage.setItem('agent_tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const tasks = JSON.parse(localStorage.getItem('agent_tasks') || '[]');
+            const list = document.getElementById('task-list');
+            list.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
+                    <span>${task.text}</span>
+                    <i class="fas fa-trash delete-task" onclick="deleteTask(${index})"></i>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        window.addEventListener('load', () => {
+            loadNotes();
+            renderTasks();
+        });
+
+        // View Switching Logic
+        function switchView(viewId) {
+            // Update Active Link
+            document.querySelectorAll('nav a').forEach(a => {
+                a.classList.remove('active');
+                if(a.getAttribute('href') === '#' + viewId) a.classList.add('active');
+            });
+
+            // Update Active Section
+            document.querySelectorAll('.view-section').forEach(s => {
+                s.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        // Calculator Logic
+        const display = document.getElementById('display');
+        const status = document.getElementById('status');
+        const voiceBtn = document.getElementById('voice-btn');
+
+        function appendToDisplay(value) {
+            display.value += value;
+        }
+
+        function clearDisplay() {
+            display.value = '';
+        }
+
+        function calculate() {
+            try {
+                // Strict safety check: only allow numbers, basic operators, and explicit Math functions
+                // We disallow generic \w and only permit the specific 'Math.' prefix for sin, cos, tan, sqrt
+                let expression = display.value.trim();
+
+                // Whitelist of allowed patterns: numbers, operators, dots, and specific Math calls
+                // disallowing any access to window, document, fetch, etc.
+                const validRegex = /^(?:[0-9+\-*/.()]|Math\.(?:sin|cos|tan|sqrt))*$/;
+
+                if (!validRegex.test(expression)) {
+                    throw new Error('Security Violation');
+                }
+
+                if (!expression) return;
+
+                // Final safety: even if regex passes, ensure no weird property access
+                if (expression.includes('[') || expression.includes(']')) throw new Error('Illegal Access');
+
+                display.value = eval(expression);
+            } catch (e) {
+                console.error("Calc Error:", e);
+                display.value = 'Error';
+            }
+        }
+
+        // Voice Recognition Support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            voiceBtn.addEventListener('click', () => {
+                recognition.start();
+                voiceBtn.classList.add('listening');
+                voiceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Listening...';
+                status.innerText = 'Listening for command...';
+            });
+
+            recognition.onresult = (event) => {
+                const command = event.results[0][0].transcript.toLowerCase();
+                status.innerText = 'Detected: "' + command + '"';
+                processCommand(command);
+            };
+
+            recognition.onend = () => {
+                voiceBtn.classList.remove('listening');
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i> Start Voice Listening';
+            };
+
+            recognition.onerror = (event) => {
+                status.innerText = 'Error: ' + event.error;
+            };
+        } else {
+            voiceBtn.style.display = 'none';
+            status.innerText = 'Speech recognition not supported in this browser.';
+        }
+
+        function processCommand(command) {
+            if (command.includes('clear')) {
+                clearDisplay();
+                return;
+            }
+
+            if (command.includes('go to') || command.includes('open')) {
+                const views = ['agent', 'flowchart', 'calculator', 'notes'];
+                for (let view of views) {
+                    if (command.includes(view)) {
+                        switchView(view);
+                        status.innerText = "Switching to " + view;
+                        return;
+                    }
+                }
+            }
+
+            let expression = command.replace('calculate', '').trim();
+            const mappings = {
+                'plus': '+',
+                'minus': '-',
+                'times': '*',
+                'multiplied by': '*',
+                'divided by': '/',
+                'x': '*',
+                'sine': 'Math.sin(',
+                'cosine': 'Math.cos(',
+                'tangent': 'Math.tan(',
+                'square root of': 'Math.sqrt(',
+                'root': 'Math.sqrt('
+            };
+
+            for (let word in mappings) {
+                expression = expression.split(word).join(mappings[word]);
+            }
+
+            // Close brackets if needed
+            const openBrackets = (expression.match(/\(/g) || []).length;
+            const closeBrackets = (expression.match(/\)/g) || []).length;
+            if (openBrackets > closeBrackets) {
+                expression += ')'.repeat(openBrackets - closeBrackets);
+            }
+
+            // Clean up using the same strict whitelist logic
+            let sanitized = expression.replace(/[^0-9+\-*/.()Math\w]/g, '');
+            // Filter further to only allow specific Math functions if letters are present
+            if (/[a-zA-Z]/.test(sanitized)) {
+                const allowed = /^(?:[0-9+\-*/.()]|Math\.(?:sin|cos|tan|sqrt))*$/;
+                if (!allowed.test(sanitized)) {
+                    sanitized = '';
+                }
+            }
+
+            if (sanitized) {
+                display.value = sanitized;
+                calculate();
+            } else {
+                status.innerText = "Command not recognized: " + command;
+            }
+        }
+    </script>
+</body>
+</html>
